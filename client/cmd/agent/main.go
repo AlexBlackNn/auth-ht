@@ -31,7 +31,7 @@ func main() {
 	showProjectInfo(log_)
 	log_.Info("starting application", slog.String("env", cfg.Env))
 
-	appMonitor, err := agent.NewAppMonitor(log_, cfg)
+	agent, err := agent.New(log_, cfg)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -41,7 +41,7 @@ func main() {
 	stop := make(chan os.Signal, 1)
 	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 
-	wg.Add(4)
+	wg.Add(2)
 	go func() {
 		defer wg.Done()
 		<-stop
@@ -50,17 +50,7 @@ func main() {
 
 	go func() {
 		defer wg.Done()
-		appMonitor.MetricsService.Collect(ctx)
-	}()
-
-	go func() {
-		defer wg.Done()
-		appMonitor.MetricsService.CollectAddition(ctx)
-	}()
-
-	go func() {
-		defer wg.Done()
-		appMonitor.MetricsService.Send(ctx)
+		agent.Start(ctx)
 	}()
 
 	wg.Wait()

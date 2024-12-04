@@ -10,7 +10,7 @@ data:image/jpeg;base64|/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxITEhEQEBAVEhUQFRAVE
 ```bash
 curl -X 'GET'   'http://localhost:8000/auth/info' \
 -H 'accept: application/json' \
--H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InN0QHJpbmcucmkiLCJleHAiOjE3MzMyNTY5MjksInRva2VuX3R5cGUiOiJhY2Nlc3MiLCJ1aWQiOiJmY2EyOWIyNy0zNjZjLTQ4NjktYTYwZS0yYjMxNmM2OGU3ZDIifQ.wHb-JFT358OB_nyR8VxRfnKWuCD1LTQmt7rTVb5mBUk'
+-H 'Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InN0cmluZ0BhLmYiLCJleHAiOjE3MzMzMDI2ODcsInRva2VuX3R5cGUiOiJhY2Nlc3MiLCJ1aWQiOiIyM2M1NjRjMi01OWU1LTQ0MjQtYmRhOS0zNmUzZGRmNTdlODYifQ.qws3OPzS-RcOPzG0RP44mqpvGnnqCe7OecRYx44JC1w'
 ```
 
 
