@@ -18,7 +18,7 @@ func main() {
 		fmt.Println("1. Register")
 		fmt.Println("2. Get Info")
 		fmt.Println("3. Login")
-		fmt.Println("3. Exit")
+		fmt.Println("4. Exit")
 		fmt.Print("Choose an option: ")
 		scanner.Scan()
 		option := scanner.Text()
