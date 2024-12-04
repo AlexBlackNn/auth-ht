@@ -63,29 +63,43 @@ func (c *Client) Register(rr dto.RegisterRequest) error {
 		SetRefreshToken(serviceResponse.RefreshToken).
 		SetUserId(serviceResponse.UserID)
 
-	fmt.Println(c)
 	return nil
 }
 
-func (c *Client) GetInfo(token string) error {
-	req, err := http.NewRequest("GET", c.addr+"/auth/info", nil)
+func (c *Client) GetInfo() error {
+	restyClient := resty.New()
+	restyClient.
+		SetRetryCount(10).
+		SetRetryWaitTime(10 * time.Second).
+		SetRetryMaxWaitTime(5 * time.Millisecond)
+
+	resp, err := restyClient.R().
+		SetHeader("Accept", "application/json").
+		SetHeader("Authorization", "Bearer "+c.AccessToken).
+		Get(c.addr + "/auth/info")
+
+	defer resp.Body()
+
+	log.Info("http request finished successfully",
+		"url", c.addr,
+		"statusCode", resp.StatusCode(),
+		"body", string(resp.Body()),
+	)
+
+	serviceResponse := dto.UserResponse{}
+	err = json.Unmarshal(resp.Body(), &serviceResponse)
 	if err != nil {
+		log.Error(err.Error())
 		return err
 	}
 
-	req.Header.Set("Accept", "application/json")
-	req.Header.Set("Authorization", "Bearer "+token)
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
+	if resp.StatusCode() != http.StatusOK {
+		return fmt.Errorf("get info failed with status code %d", resp.StatusCode())
 	}
-	defer resp.Body.Close()
 
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("get info failed with status code %d", resp.StatusCode)
-	}
+	c.SetAvatar(serviceResponse.Avatar).
+		SetEmail(serviceResponse.Email).
+		SetName(serviceResponse.Name)
 	return nil
 }
 
@@ -138,11 +152,7 @@ func main() {
 				log.Info("Registration successful")
 			}
 		case "2":
-			fmt.Print("Enter token: ")
-			scanner.Scan()
-			token := scanner.Text()
-
-			err := client.GetInfo(token)
+			err := client.GetInfo()
 			if err != nil {
 				log.Error(err.Error())
 			} else {
