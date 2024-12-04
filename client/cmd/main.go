@@ -75,7 +75,7 @@ func main() {
 
 			err := fsm.Event(context.Background(), "info")
 			if err != nil {
-				fmt.Println(err)
+				log.Error(err.Error())
 			}
 
 			if fsm.Current() == "info" {
@@ -112,7 +112,7 @@ func main() {
 
 			err := fsm.Event(context.Background(), "info")
 			if err != nil {
-				fmt.Println(err)
+				log.Error(err.Error())
 			}
 			if fsm.Current() == "info" {
 				err := serviceClient.GetInfo()
