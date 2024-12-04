@@ -7,8 +7,8 @@ import (
 	log "log/slog"
 	"os"
 
+	"github.com/AlexBlackNn/authloyalty/client/internal/client"
 	"github.com/AlexBlackNn/authloyalty/client/internal/dto"
-	"github.com/AlexBlackNn/authloyalty/client/internal/services/client"
 	"github.com/looplab/fsm"
 )
 
