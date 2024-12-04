@@ -100,3 +100,46 @@ func (c *Client) GetInfo() error {
 		SetName(serviceResponse.Name)
 	return nil
 }
+
+func (c *Client) Login(lr dto.LoginRequest) error {
+	jsonData, err := json.Marshal(lr)
+	if err != nil {
+		return err
+	}
+
+	restyClient := resty.New()
+	restyClient.
+		SetRetryCount(10).
+		SetRetryWaitTime(10 * time.Second).
+		SetRetryMaxWaitTime(5 * time.Millisecond)
+
+	resp, err := restyClient.R().
+		SetHeader("Content-Type", "application/json").
+		SetBody(jsonData).
+		Post(c.addr + "/auth/login")
+
+	defer resp.Body()
+
+	log.Info("http request finished successfully",
+		"url", c.addr,
+		"statusCode", resp.StatusCode(),
+		"body", string(resp.Body()),
+	)
+
+	serviceResponse := dto.Response{}
+	err = json.Unmarshal(resp.Body(), &serviceResponse)
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+
+	if resp.StatusCode() != http.StatusCreated {
+		return fmt.Errorf("registration failed with status code %d", resp.StatusCode)
+	}
+
+	c.SetAccessToken(serviceResponse.AccessToken).
+		SetRefreshToken(serviceResponse.RefreshToken).
+		SetUserId(serviceResponse.UserID)
+
+	return nil
+}

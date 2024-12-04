@@ -17,6 +17,7 @@ func main() {
 	for {
 		fmt.Println("1. Register")
 		fmt.Println("2. Get Info")
+		fmt.Println("3. Login")
 		fmt.Println("3. Exit")
 		fmt.Print("Choose an option: ")
 		scanner.Scan()
@@ -66,6 +67,27 @@ func main() {
 				log.Info("Got info successfully")
 			}
 		case "3":
+
+			fmt.Print("Enter email: ")
+			scanner.Scan()
+			email := scanner.Text()
+
+			fmt.Print("Enter password: ")
+			scanner.Scan()
+			password := scanner.Text()
+
+			lr := dto.LoginRequest{
+				Email:    email,
+				Password: password,
+			}
+
+			err := serviceClient.Login(lr)
+			if err != nil {
+				log.Error(err.Error())
+			} else {
+				log.Info("Login successful")
+			}
+		case "4":
 			return
 		default:
 			log.Info("Invalid option")
