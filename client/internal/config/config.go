@@ -1,4 +1,4 @@
-package configagent
+package config
 
 import (
 	"flag"
@@ -6,7 +6,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/AlexBlackNn/authloyalty/client/internal/config"
+	"github.com/caarlos0/env/v6"
 	"github.com/ilyakaznacheev/cleanenv"
 )
 
@@ -88,12 +88,12 @@ func New() (*Config, error) {
 // LoadByPath loads config by path
 func LoadByPath(configPath string) (*Config, error) {
 	if _, err := os.Stat(configPath); os.IsNotExist(err) {
-		return &Config{}, config.ErrAbsentConfigFile
+		return &Config{}, ErrAbsentConfigFile
 	}
 
 	var cfg Config
 	if err := cleanenv.ReadConfig(configPath, &cfg); err != nil {
-		return &Config{}, config.ErrReadConfigFailed
+		return &Config{}, ErrReadConfigFailed
 	}
 	return &cfg, nil
 }

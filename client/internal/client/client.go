@@ -13,12 +13,12 @@ import (
 )
 
 type Client struct {
-	addr string
+	Addr string
 	domain.UserInfo
 }
 
 func New(addr string) *Client {
-	return &Client{addr: addr}
+	return &Client{Addr: addr}
 }
 
 func (c *Client) Register(rr dto.RegisterRequest) error {
@@ -36,12 +36,12 @@ func (c *Client) Register(rr dto.RegisterRequest) error {
 	resp, err := restyClient.R().
 		SetHeader("Content-Type", "application/json").
 		SetBody(jsonData).
-		Post(c.addr + "/auth/registration")
+		Post(c.Addr + "/auth/registration")
 
 	defer resp.Body()
 
 	log.Info("http request finished successfully",
-		"url", c.addr,
+		"url", c.Addr,
 		"statusCode", resp.StatusCode(),
 		"body", string(resp.Body()),
 	)
@@ -74,12 +74,12 @@ func (c *Client) GetInfo() error {
 	resp, err := restyClient.R().
 		SetHeader("Accept", "application/json").
 		SetHeader("Authorization", "Bearer "+c.AccessToken).
-		Get(c.addr + "/auth/info")
+		Get(c.Addr + "/auth/info")
 
 	defer resp.Body()
 
 	log.Info("http request finished successfully",
-		"url", c.addr,
+		"url", c.Addr,
 		"statusCode", resp.StatusCode(),
 		"body", string(resp.Body()),
 	)
@@ -116,12 +116,12 @@ func (c *Client) Login(lr dto.LoginRequest) error {
 	resp, err := restyClient.R().
 		SetHeader("Content-Type", "application/json").
 		SetBody(jsonData).
-		Post(c.addr + "/auth/login")
+		Post(c.Addr + "/auth/login")
 
 	defer resp.Body()
 
 	log.Info("http request finished successfully",
-		"url", c.addr,
+		"url", c.Addr,
 		"statusCode", resp.StatusCode(),
 		"body", string(resp.Body()),
 	)
