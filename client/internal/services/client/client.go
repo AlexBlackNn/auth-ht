@@ -1,12 +1,10 @@
-package main
+package client
 
 import (
-	"bufio"
 	"encoding/json"
 	"fmt"
 	log "log/slog"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/AlexBlackNn/authloyalty/client/internal/domain"
@@ -101,67 +99,4 @@ func (c *Client) GetInfo() error {
 		SetEmail(serviceResponse.Email).
 		SetName(serviceResponse.Name)
 	return nil
-}
-
-func main() {
-	client := New("http://localhost:8000")
-
-	scanner := bufio.NewScanner(os.Stdin)
-	for {
-		fmt.Println("1. Register")
-		fmt.Println("2. Get Info")
-		fmt.Println("3. Exit")
-		fmt.Print("Choose an option: ")
-		scanner.Scan()
-		option := scanner.Text()
-
-		switch option {
-		case "1":
-			fmt.Print("Enter username: ")
-			scanner.Scan()
-			name := scanner.Text()
-
-			fmt.Print("Enter email: ")
-			scanner.Scan()
-			email := scanner.Text()
-
-			fmt.Print("Enter birthday: ")
-			scanner.Scan()
-			birthday := scanner.Text()
-
-			fmt.Print("Enter password: ")
-			scanner.Scan()
-			password := scanner.Text()
-
-			fmt.Print("Enter avatar (base64 encoded): ")
-			scanner.Scan()
-			avatar := scanner.Text()
-
-			rr := dto.RegisterRequest{
-				Name:     name,
-				Email:    email,
-				Birthday: birthday,
-				Password: password,
-				Avatar:   avatar,
-			}
-
-			err := client.Register(rr)
-			if err != nil {
-				log.Error(err.Error())
-			} else {
-				log.Info("Registration successful")
-			}
-		case "2":
-			err := client.GetInfo()
-			if err != nil {
-				log.Error(err.Error())
-			} else {
-				log.Info("Got info successfully")
-			}
-		case "3":
-			return
-		default:
-			log.Info("Invalid option")
-		}
-	}
 }
