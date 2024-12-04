@@ -1,0 +1,208 @@
+definitions:
+  dto.Login:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    type: object
+  dto.Logout:
+    properties:
+      token:
+        type: string
+    type: object
+  dto.Refresh:
+    properties:
+      token:
+        type: string
+    type: object
+  dto.Register:
+    properties:
+      avatar:
+        type: string
+      birthday:
+        type: string
+      email:
+        type: string
+      name:
+        type: string
+      password:
+        type: string
+    required:
+    - password
+    type: object
+  dto.Response:
+    properties:
+      access_token:
+        type: string
+      error:
+        type: string
+      refresh_token:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: string
+    type: object
+  dto.UserResponse:
+    properties:
+      avatar:
+        type: string
+      birthday:
+        type: string
+      email:
+        type: string
+      error:
+        type: string
+      name:
+        type: string
+      status:
+        type: string
+      user_id:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact:
+    name: API Support
+  description: sso service.
+  license:
+    name: Apache 2.0
+  title: Swagger API
+  version: "1.0"
+paths:
+  /auth/healthz:
+    get:
+      description: Определяет, нужно ли перезагрузить сервис
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+      summary: Проверка, что приложение живо
+      tags:
+      - Health
+  /auth/info:
+    get:
+      description: Provides a user info.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: info successful
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+      security:
+      - bearerAuth: []
+      summary: Info
+      tags:
+      - Auth
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authenticates a user and returns access and refresh tokens.
+      parameters:
+      - description: Login request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Login'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Login successful
+          schema:
+            $ref: '#/definitions/dto.Response'
+      summary: Login
+      tags:
+      - Auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout from current session. Frontend needs to send access and
+        then refresh token
+      parameters:
+      - description: Logout request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Logout'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logout successful
+          schema:
+            $ref: '#/definitions/dto.Response'
+      summary: Logout
+      tags:
+      - Auth
+  /auth/ready:
+    get:
+      description: Определяет можно ли подавать трафик на сервис
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.Response'
+      summary: Проверка готовности приложения
+      tags:
+      - Health
+  /auth/refresh:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Refresh request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Refresh'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Refresh successful
+          schema:
+            $ref: '#/definitions/dto.Response'
+      summary: Refresh
+      tags:
+      - Auth
+  /auth/registration:
+    post:
+      consumes:
+      - application/json
+      description: User registration
+      parameters:
+      - description: Register request
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/dto.Register'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Register successful
+          schema:
+            $ref: '#/definitions/dto.Response'
+      summary: Registration
+      tags:
+      - Auth
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
