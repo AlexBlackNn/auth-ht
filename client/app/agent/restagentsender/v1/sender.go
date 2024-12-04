@@ -4,55 +4,28 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"net"
 	"time"
 
-	"github.com/AlexBlackNn/metrics/app/agent/encryption"
+	"github.com/AlexBlackNn/authloyalty/client/internal/config/configagent"
 	"github.com/AlexBlackNn/metrics/app/agent/hash"
-	"github.com/AlexBlackNn/metrics/internal/config/configagent"
-	"github.com/AlexBlackNn/metrics/internal/config/configserver"
-	"github.com/AlexBlackNn/metrics/internal/domain/models"
-	"github.com/AlexBlackNn/metrics/internal/services/agentmetricsservice"
+	"github.com/go-resty/resty/v2"
 	"golang.org/x/time/rate"
 )
 
 type Sender struct {
-	log       *slog.Logger
-	cfg       *configagent.Config
-	encryptor *encryption.Encryptor
-	*agentmetricsservice.MonitorService
+	log *slog.Logger
+	cfg *configagent.Config
 }
 
 func New(
 	log *slog.Logger,
 	cfg *configagent.Config,
-	encryptor *encryption.Encryptor,
 ) *Sender {
 
 	return &Sender{
 		log,
 		cfg,
-		encryptor,
-		agentmetricsservice.New(log, cfg),
 	}
-}
-
-// getLocalIP returns the non loopback local IP of the host
-func getLocalIP() string {
-	addrs, err := net.InterfaceAddrs()
-	if err != nil {
-		return ""
-	}
-	for _, address := range addrs {
-		// check the address type and if it is not a loopback the display it
-		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if ipnet.IP.To4() != nil {
-				fmt.Println("ipnet", ipnet.IP.String())
-				return ipnet.IP.String()
-			}
-		}
-	}
-	return ""
 }
 
 func (s *Sender) Send(ctx context.Context) {

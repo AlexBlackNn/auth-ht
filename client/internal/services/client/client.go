@@ -2,12 +2,14 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"encoding/json"
 	"fmt"
-	"log"
+	log "log/slog"
 	"net/http"
 	"os"
+	"time"
+
+	"github.com/go-resty/resty/v2"
 )
 
 type Client struct {
@@ -32,26 +34,28 @@ func (c *Client) Register(rr RegisterRequest) error {
 		return err
 	}
 
-	req, err := http.NewRequest(
-		"POST", c.addr+"/auth/registration",
-		bytes.NewBuffer(jsonData),
+	restyClient := resty.New()
+	restyClient.
+		SetRetryCount(10).
+		SetRetryWaitTime(10 * time.Second).
+		SetRetryMaxWaitTime(5 * time.Millisecond)
+
+	resp, err := restyClient.R().
+		SetHeader("Content-Type", "application/json").
+		SetBody(jsonData).
+		Post(c.addr + "/auth/registration")
+
+	defer resp.Body()
+
+	log.Info("http request finished successfully",
+		"url", c.addr,
+		"statusCode", resp.StatusCode(),
+		"body", string(resp.Body()),
 	)
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusCreated {
+	if resp.StatusCode() != http.StatusCreated {
 		return fmt.Errorf("registration failed with status code %d", resp.StatusCode)
 	}
-
 	return nil
 }
 
@@ -121,9 +125,9 @@ func main() {
 
 			err := client.Register(rr)
 			if err != nil {
-				log.Println(err)
+				log.Error(err.Error())
 			} else {
-				log.Println("Registration successful")
+				log.Info("Registration successful")
 			}
 		case "2":
 			fmt.Print("Enter token: ")
@@ -132,14 +136,14 @@ func main() {
 
 			err := client.GetInfo(token)
 			if err != nil {
-				log.Println(err)
+				log.Error(err.Error())
 			} else {
-				log.Println("Got info successfully")
+				log.Info("Got info successfully")
 			}
 		case "3":
 			return
 		default:
-			log.Println("Invalid option")
+			log.Info("Invalid option")
 		}
 	}
 }
