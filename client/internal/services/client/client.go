@@ -9,26 +9,21 @@ import (
 	"os"
 	"time"
 
+	"github.com/AlexBlackNn/authloyalty/client/internal/domain"
+	"github.com/AlexBlackNn/authloyalty/client/internal/dto"
 	"github.com/go-resty/resty/v2"
 )
 
 type Client struct {
 	addr string
+	domain.UserInfo
 }
 
 func New(addr string) *Client {
 	return &Client{addr: addr}
 }
 
-type RegisterRequest struct {
-	Avatar   string `json:"avatar"`
-	Birthday string `json:"birthday"`
-	Email    string `json:"email"`
-	Name     string `json:"name"`
-	Password string `json:"password"`
-}
-
-func (c *Client) Register(rr RegisterRequest) error {
+func (c *Client) Register(rr dto.RegisterRequest) error {
 	jsonData, err := json.Marshal(rr)
 	if err != nil {
 		return err
@@ -53,9 +48,22 @@ func (c *Client) Register(rr RegisterRequest) error {
 		"body", string(resp.Body()),
 	)
 
+	serviceResponse := dto.Response{}
+	err = json.Unmarshal(resp.Body(), &serviceResponse)
+	if err != nil {
+		log.Error(err.Error())
+		return err
+	}
+
 	if resp.StatusCode() != http.StatusCreated {
 		return fmt.Errorf("registration failed with status code %d", resp.StatusCode)
 	}
+
+	c.SetAccessToken(serviceResponse.AccessToken).
+		SetRefreshToken(serviceResponse.RefreshToken).
+		SetUserId(serviceResponse.UserID)
+
+	fmt.Println(c)
 	return nil
 }
 
@@ -115,7 +123,7 @@ func main() {
 			scanner.Scan()
 			avatar := scanner.Text()
 
-			rr := RegisterRequest{
+			rr := dto.RegisterRequest{
 				Name:     name,
 				Email:    email,
 				Birthday: birthday,
